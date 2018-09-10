@@ -3,7 +3,7 @@
  *          fallback
  * @author jasonslyvia
  */
-const timing = require('timing2');
+var timing = require('timing2');
 
 function now() {
   return performance && performance.now ? performance.now() : Date.now();
@@ -18,9 +18,9 @@ module.exports = function painty(timeout, callback) {
     callback = timeout;
   }
 
-  const start = timing.getEntriesByType('navigation')[0].startTime;
-  const records = [];
-  const stopLogging = logDOMChange();
+  var start = timing.getEntriesByType('navigation')[0].startTime;
+  var records = [];
+  var stopLogging = logDOMChange();
 
   function done() {
     stopLogging();
@@ -30,16 +30,16 @@ module.exports = function painty(timeout, callback) {
   if (typeof timeout === 'number') {
     setTimeout(done, timeout);
   } else {
-    const ua = navigator.userAgent;
-    const isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
-    const eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
+    var ua = navigator.userAgent;
+    var isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
+    var eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
 
     window.addEventListener(eventName, done);
   }
 
   function logDOMChange() {
     if (typeof MutationObserver === 'function') {
-      const observer = new MutationObserver(function() {
+      var observer = new MutationObserver(function() {
         records.push({
           t: now(),
           domCnt: document.getElementsByTagName('*').length,
@@ -53,7 +53,7 @@ module.exports = function painty(timeout, callback) {
       return observer.disconnect.bind(observer);
     }
 
-    const timer = setTimeout(function() {
+    var timer = setTimeout(function() {
       records.push({
         t: now(),
         domCnt: document.getElementsByTagName('*').length,
@@ -71,11 +71,11 @@ module.exports = function painty(timeout, callback) {
       return typeof timeout === 'number' ? timeout : 0;
     }
 
-    const slopes = records.map(function(item, idx) {
+    var slopes = records.map(function(item, idx) {
       if (idx === 0) {
         return 0;
       }
-      const prev = records[idx - 1];
+      var prev = records[idx - 1];
       if (item.domCnt === prev.domCnt) {
         return 0;
       }
@@ -83,8 +83,8 @@ module.exports = function painty(timeout, callback) {
       return (item.t - prev.t) / (item.domCnt - prev.domCnt);
     });
 
-    const maxSlope = Math.max(...slopes);
-    const maxSlopeIndex = slopes.indexOf(maxSlope);
+    var maxSlope = Math.max.apply(null, slopes);
+    var maxSlopeIndex = slopes.indexOf(maxSlope);
     return records[maxSlopeIndex].t - start;
   }
 }
