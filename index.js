@@ -18,7 +18,7 @@ module.exports = function painty(timeout, callback) {
     callback = timeout;
   }
 
-  const start = timing.getEntriesByType('navigation')[0].duration;
+  const start = timing.getEntriesByType('navigation')[0].startTime;
   const records = [];
   const stopLogging = logDOMChange();
 
