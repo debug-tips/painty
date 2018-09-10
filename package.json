@@ -1,6 +1,6 @@
 {
   "name": "painty",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "a First Meaningful Paint metric collector using Mutation Observer",
   "main": "index.js",
   "scripts": {
