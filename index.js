@@ -68,7 +68,7 @@ module.exports = function painty(timeout, callback) {
 
   function calculateFMP() {
     if (records.length === 0) {
-      return timeout || 0;
+      return typeof timeout === 'number' ? timeout : 0;
     }
 
     const slopes = records.map(function(item, idx) {
