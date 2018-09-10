@@ -1,0 +1,35 @@
+{
+  "name": "painty",
+  "version": "0.1.0",
+  "description": "a First Meaningful Paint metric collector using Mutation Observer",
+  "main": "index.js",
+  "scripts": {
+    "test": ":",
+    "build": "rollup -c rollup.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/debug-tips/painty.git"
+  },
+  "keywords": [
+    "first-meaningful-paint",
+    "fmp",
+    "amp",
+    "performance"
+  ],
+  "author": "jasonslyvia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/debug-tips/painty/issues"
+  },
+  "homepage": "https://github.com/debug-tips/painty#readme",
+  "dependencies": {
+    "timing2": "^0.3.2"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "rollup": "^0.65.2",
+    "rollup-plugin-commonjs": "^9.1.6",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  }
+}
