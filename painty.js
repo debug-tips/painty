@@ -114,11 +114,52 @@
 	}));
 	});
 
+	function getWeight(num) {
+	  return Math.pow(0.5, num);
+	}
+
+	var calculateFMP = function calculateFMP(option) {
+	  var records = option.records;
+	  var start = option.start;
+	  var timeout = option.timeout;
+	  var load = option.load;
+
+	  if (records.length === 0) {
+	    return typeof timeout === 'number' ? timeout : 0;
+	  }
+
+	  // add weight to each data point
+	  if (typeof load === 'number') {
+	    records.forEach(function(item) {
+	      var t = item.t;
+	      var abst = Math.abs(parseFloat(t) - load);
+	      item.weight = getWeight(abst / 1000);
+	    });
+	  }
+
+	  var slopes = records.map(function(item, idx) {
+	    if (idx === 0) {
+	      return 0;
+	    }
+	    var prev = records[idx - 1];
+	    if (item.domCnt === prev.domCnt) {
+	      return 0;
+	    }
+
+	    return (item.domCnt - prev.domCnt) / (item.t - prev.t) * (typeof item.weight === 'number' ? item.weight : 1);
+	  });
+
+	  var maxSlope = Math.max.apply(null, slopes);
+	  var maxSlopeIndex = slopes.indexOf(maxSlope);
+	  return records[maxSlopeIndex].t - start;
+	};
+
 	/**
 	 * painty - A First Meaningful Paint metric collector based on MutationObserver with a setTimeout
 	 *          fallback
 	 * @author jasonslyvia
 	 */
+
 
 
 	function now() {
@@ -127,35 +168,19 @@
 
 	var painty = function painty(timeout, callback) {
 	  if (typeof window !== 'object' || typeof lib !== 'object') {
-	    return null;
+	    return;
 	  }
 
 	  if (typeof timeout === 'function') {
 	    callback = timeout;
 	  }
 
-	  const start = lib.getEntriesByType('navigation')[0].duration;
-	  const records = [];
-	  const stopLogging = logDOMChange();
-
-	  function done() {
-	    stopLogging();
-	    callback(calculateFMP());
-	  }
-
-	  if (typeof timeout === 'number') {
-	    setTimeout(done, timeout);
-	  } else {
-	    const ua = navigator.userAgent;
-	    const isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
-	    const eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
-
-	    window.addEventListener(eventName, done);
-	  }
+	  var start = lib.getEntriesByType('navigation')[0].startTime;
+	  var records = [];
 
 	  function logDOMChange() {
 	    if (typeof MutationObserver === 'function') {
-	      const observer = new MutationObserver(function() {
+	      var observer = new MutationObserver(function() {
 	        records.push({
 	          t: now(),
 	          domCnt: document.getElementsByTagName('*').length,
@@ -169,7 +194,7 @@
 	      return observer.disconnect.bind(observer);
 	    }
 
-	    const timer = setTimeout(function() {
+	    var timer = setTimeout(function() {
 	      records.push({
 	        t: now(),
 	        domCnt: document.getElementsByTagName('*').length,
@@ -177,31 +202,29 @@
 	      logDOMChange();
 	    }, 200);
 
-	    return function(){
+	    return function() {
 	      clearTimeout(timer);
 	    };
 	  }
 
-	  function calculateFMP() {
-	    if (records.length === 0) {
-	      return timeout || 0;
-	    }
+	  var stopLogging = logDOMChange();
+	  function done() {
+	    stopLogging();
+	    callback(calculateFMP({
+	      records: records,
+	      start: start,
+	      timeout: timeout,
+	    }));
+	  }
 
-	    const slopes = records.map(function(item, idx) {
-	      if (idx === 0) {
-	        return 0;
-	      }
-	      const prev = records[idx - 1];
-	      if (item.domCnt === prev.domCnt) {
-	        return 0;
-	      }
+	  if (typeof timeout === 'number') {
+	    setTimeout(done, timeout);
+	  } else {
+	    var ua = navigator.userAgent;
+	    var isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
+	    var eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
 
-	      return (item.t - prev.t) / (item.domCnt - prev.domCnt);
-	    });
-
-	    const maxSlope = Math.max(...slopes);
-	    const maxSlopeIndex = slopes.indexOf(maxSlope);
-	    return records[maxSlopeIndex].t - start;
+	    window.addEventListener(eventName, done);
 	  }
 	};
 
