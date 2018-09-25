@@ -1,0 +1,21 @@
+{
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaVersion": 3
+  },
+  "env": {
+    "browser": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-var": "off",
+    "vars-on-top": "off",
+    "func-names": "off",
+    "prefer-arrow-callback": "off",
+    "space-before-function-paren": "off",
+    "no-param-reassign": "warn",
+    "prefer-destructuring": "off",
+    "no-restricted-properties": "warn",
+    "object-shorthand": "off"
+  }
+}

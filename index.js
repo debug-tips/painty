@@ -4,6 +4,7 @@
  * @author jasonslyvia
  */
 var timing = require('timing2');
+var calculateFMP = require('./calculateFMP');
 
 function now() {
   return performance && performance.now ? performance.now() : Date.now();
@@ -11,7 +12,7 @@ function now() {
 
 module.exports = function painty(timeout, callback) {
   if (typeof window !== 'object' || typeof timing !== 'object') {
-    return null;
+    return;
   }
 
   if (typeof timeout === 'function') {
@@ -20,22 +21,6 @@ module.exports = function painty(timeout, callback) {
 
   var start = timing.getEntriesByType('navigation')[0].startTime;
   var records = [];
-  var stopLogging = logDOMChange();
-
-  function done() {
-    stopLogging();
-    callback(calculateFMP());
-  }
-
-  if (typeof timeout === 'number') {
-    setTimeout(done, timeout);
-  } else {
-    var ua = navigator.userAgent;
-    var isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
-    var eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
-
-    window.addEventListener(eventName, done);
-  }
 
   function logDOMChange() {
     if (typeof MutationObserver === 'function') {
@@ -61,30 +46,28 @@ module.exports = function painty(timeout, callback) {
       logDOMChange();
     }, 200);
 
-    return function(){
+    return function() {
       clearTimeout(timer);
     };
   }
 
-  function calculateFMP() {
-    if (records.length === 0) {
-      return typeof timeout === 'number' ? timeout : 0;
-    }
-
-    var slopes = records.map(function(item, idx) {
-      if (idx === 0) {
-        return 0;
-      }
-      var prev = records[idx - 1];
-      if (item.domCnt === prev.domCnt) {
-        return 0;
-      }
-
-      return (item.t - prev.t) / (item.domCnt - prev.domCnt);
-    });
-
-    var maxSlope = Math.max.apply(null, slopes);
-    var maxSlopeIndex = slopes.indexOf(maxSlope);
-    return records[maxSlopeIndex].t - start;
+  var stopLogging = logDOMChange();
+  function done() {
+    stopLogging();
+    callback(calculateFMP({
+      records: records,
+      start: start,
+      timeout: timeout,
+    }));
   }
-}
+
+  if (typeof timeout === 'number') {
+    setTimeout(done, timeout);
+  } else {
+    var ua = navigator.userAgent;
+    var isMobileSafari = !!ua.match(/iPhone|iPad|iPod/i);
+    var eventName = isMobileSafari ? 'pagehide' : 'beforeunload';
+
+    window.addEventListener(eventName, done);
+  }
+};

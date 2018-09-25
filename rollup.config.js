@@ -13,6 +13,6 @@ module.exports = {
     resolve({
       module: true,
     }),
-    commonjs()
-  ]
-}
+    commonjs(),
+  ],
+};
