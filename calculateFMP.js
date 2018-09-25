@@ -30,7 +30,7 @@ module.exports = function calculateFMP(option) {
       return 0;
     }
 
-    return (item.domCnt - prev.domCnt) / (item.t - prev.t) * (item.weight || 1);
+    return (item.domCnt - prev.domCnt) / (item.t - prev.t) * (typeof item.weight === 'number' ? item.weight : 1);
   });
 
   var maxSlope = Math.max.apply(null, slopes);
