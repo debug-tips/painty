@@ -1,4 +1,4 @@
-painty [![npm version](https://badge.fury.io/js/painty.svg)](http://badge.fury.io/js/painty)
+painty [![Build Status](https://travis-ci.com/debug-tips/painty.svg)](https://travis-ci.com/debug-tips/painty)[![npm version](https://badge.fury.io/js/painty.svg)](http://badge.fury.io/js/painty)
 ----
 
  A First Meaningful Paint metric collector based on MutationObserver with a setTimeout fallback

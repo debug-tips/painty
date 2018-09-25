@@ -1,0 +1,18 @@
+
+language: node_js
+node_js:
+  - "10"
+dist: trusty
+sudo: false
+addons:
+  chrome: stable
+before_install:
+  - rm yarn.lock
+cache:
+  yarn: true
+  directories:
+    - node_modules
+install:
+  - yarn
+script:
+  - npm run test
