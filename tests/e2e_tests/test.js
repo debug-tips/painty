@@ -1,7 +1,9 @@
 const puppeteer = require('puppeteer');
+const lighthouse = require('lighthouse');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
+const { URL } = require('url');
 
 const rawJs = fs.readFileSync(path.resolve(__dirname, '../../painty.js'), { encoding: 'utf8' });
 async function sleep(time) {
@@ -14,8 +16,12 @@ async function sleep(time) {
 describe('painty basic', function() {
   this.timeout(60000);
 
-  it('should calculate fmp with timeout specified', async () => {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+  it.only('should calculate fmp with timeout specified', async () => {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-storage-reset', '--disable-device-emulation'],
+      headless: false,
+      defaultViewport: null,
+    });
     const page = await browser.newPage();
 
     await page.evaluateOnNewDocument(rawJs);
@@ -29,6 +35,22 @@ describe('painty basic', function() {
     });
 
     console.log(`fmp: ${result.fmp} ms, load: ${result.load} ms`);
+    await page.close();
+
+    const { lhr } = await lighthouse('https://www.taobao.com', {
+      port: (new URL(browser.wsEndpoint())).port,
+      output: 'json',
+    }, {
+      extends: 'lighthouse:default',
+      settings: {
+        disableDeviceEmulation: true,
+        useThrottling: false,
+        onlyAudits: ['first-meaningful-paint'],
+      },
+    });
+
+    console.log(`fmp from lighthouse: ${lhr.audits['first-meaningful-paint'].rawValue} ms`);
+
     assert.equal(typeof result.fmp, 'number');
     assert.notEqual(result.fmp, 0);
     await browser.close();

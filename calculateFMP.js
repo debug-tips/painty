@@ -1,5 +1,5 @@
 function getWeight(num) {
-  return Math.pow(0.5, num);
+  return 1 - Math.pow(Math.E, num) / (Math.pow(Math.E, num) + 100);
 }
 
 module.exports = function calculateFMP(option) {
