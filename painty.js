@@ -162,6 +162,11 @@
 
 
 
+	/* global __PAINTY_STACK_LIMIT__ */
+
+	// record at most 100 DOM changes
+	var STACK_LIMIT = typeof __PAINTY_STACK_LIMIT__ === 'number' ? __PAINTY_STACK_LIMIT__ : 100;
+
 	function now() {
 	  return performance && performance.now ? performance.now() : Date.now();
 	}
@@ -175,7 +180,6 @@
 	    callback = timeout;
 	  }
 
-	  var start = lib.getEntriesByType('navigation')[0].startTime;
 	  var records = [];
 
 	  function logDOMChange() {
@@ -185,6 +189,10 @@
 	          t: now(),
 	          domCnt: document.getElementsByTagName('*').length,
 	        });
+
+	        if (records.length === STACK_LIMIT) {
+	          done();
+	        }
 	      });
 	      observer.observe(document, {
 	        childList: true,
@@ -199,7 +207,12 @@
 	        t: now(),
 	        domCnt: document.getElementsByTagName('*').length,
 	      });
-	      logDOMChange();
+
+	      if (records.length === STACK_LIMIT) {
+	        done();
+	      } else {
+	        logDOMChange();
+	      }
 	    }, 200);
 
 	    return function() {
@@ -210,10 +223,20 @@
 	  var stopLogging = logDOMChange();
 	  function done() {
 	    stopLogging();
+
+	    var navTimings = lib.getEntriesByType('navigation');
+	    if (!navTimings || !navTimings.length) {
+	      return;
+	    }
+
+	    var navTiming = navTimings[0];
+	    var start = navTiming.startTime;
+
 	    callback(calculateFMP({
 	      records: records,
 	      start: start,
 	      timeout: timeout,
+	      load: navTiming.duration,
 	    }));
 	  }
 
