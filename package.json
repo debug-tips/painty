@@ -4,7 +4,7 @@
   "description": "a First Meaningful Paint metric collector using Mutation Observer",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests",
+    "test": "mocha tests --recursive",
     "build": "rollup -c rollup.config.js"
   },
   "repository": {
@@ -31,6 +31,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "mocha": "^5.2.0",
+    "puppeteer": "^1.9.0",
     "rollup": "^0.65.2",
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-node-resolve": "^3.4.0"

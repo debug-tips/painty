@@ -1,5 +1,5 @@
 var assert = require('assert');
-var calculateFMP = require('../calculateFMP');
+var calculateFMP = require('../../calculateFMP');
 var shortPayload = require('./short.json');
 var longPayload = require('./long.json');
 var payload3 = require('./payload3.json');
