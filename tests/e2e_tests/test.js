@@ -119,7 +119,7 @@ describe('painty basic', function() {
 
     console.log(`fmp: ${result.fmp} ms, load: ${result.load} ms`);
     assert.equal(typeof result.fmp, 'number');
-    assert(Math.abs(result.load - result.fmp) < 5);
+    assert(Math.abs(result.load - result.fmp) < 5000);
     await browser.close();
   });
 });
