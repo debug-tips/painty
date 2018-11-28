@@ -1,3 +1,4 @@
+/* global painty */
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
@@ -5,9 +6,9 @@ const assert = require('assert');
 
 const rawJs = fs.readFileSync(path.resolve(__dirname, '../../painty.js'), { encoding: 'utf8' });
 async function sleep(time) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(resolve, time);
-  })
+  });
 }
 
 
@@ -21,12 +22,10 @@ describe('painty basic', function() {
     await page.evaluateOnNewDocument(rawJs);
     await page.goto('https://www.taobao.com');
     await page.waitForFunction('typeof painty === "function"');
-    const result = await page.evaluate(async () => {
-      return {
-        fmp: await new Promise(resolve => painty(10000, fmp => resolve(fmp))),
-        load: performance.timing.loadEventEnd - performance.timing.navigationStart,
-      };
-    });
+    const result = await page.evaluate(async () => ({
+      fmp: await new Promise(resolve => painty(10000, fmp => resolve(fmp))),
+      load: performance.timing.loadEventEnd - performance.timing.navigationStart,
+    }));
 
     console.log(`fmp: ${result.fmp} ms, load: ${result.load} ms`);
     assert.equal(typeof result.fmp, 'number');
@@ -41,15 +40,13 @@ describe('painty basic', function() {
     await page.evaluateOnNewDocument(rawJs);
     await page.goto('https://www.taobao.com');
     await page.waitForFunction('typeof painty === "function"');
-    const result = await page.evaluate(async () => {
-      return new Promise(resolve => {
-        painty(fmp => resolve({
-          fmp,
-          load: performance.timing.loadEventEnd - performance.timing.navigationStart,
-        }));
-        setTimeout(() => window.dispatchEvent(new Event('beforeunload')), 5000);
-      });
-    });
+    const result = await page.evaluate(async () => new Promise(resolve => {
+      painty(fmp => resolve({
+        fmp,
+        load: performance.timing.loadEventEnd - performance.timing.navigationStart,
+      }));
+      setTimeout(() => window.dispatchEvent(new Event('beforeunload')), 5000);
+    }));
 
     console.log(`fmp: ${result.fmp} ms, load: ${result.load} ms`);
     assert.equal(typeof result.fmp, 'number');
@@ -65,14 +62,12 @@ describe('painty basic', function() {
     await page.evaluateOnNewDocument(rawJs);
     await page.goto('https://www.taobao.com');
     await page.waitForFunction('typeof painty === "function"');
-    const result = await page.evaluate(async () => {
-      return new Promise(resolve => {
-        painty(fmp => resolve({
-          fmp,
-          load: performance.timing.loadEventEnd - performance.timing.navigationStart,
-        }));
-      });
-    });
+    const result = await page.evaluate(async () => new Promise(resolve => {
+      painty(fmp => resolve({
+        fmp,
+        load: performance.timing.loadEventEnd - performance.timing.navigationStart,
+      }));
+    }));
 
     console.log(`fmp: ${result.fmp} ms, load: ${result.load} ms`);
     assert.equal(typeof result.fmp, 'number');
@@ -87,11 +82,9 @@ describe('painty basic', function() {
     await page.evaluateOnNewDocument(rawJs);
     await page.goto('https://ant.design/index-cn');
     await page.waitForFunction('typeof painty === "function"');
-    await page.evaluate(async () => {
-      return painty(fmp => {
-        window.fmp = fmp;
-      });
-    });
+    await page.evaluate(async () => painty(fmp => {
+      window.fmp = fmp;
+    }));
 
     const btn = await page.$('#banner > div.banner.page > div.text-wrapper > div > a.banner-btn.components');
     await btn.click();
@@ -107,7 +100,7 @@ describe('painty basic', function() {
     const result = await page.evaluate(async () => {
       window.dispatchEvent(new Event('beforeunload'));
 
-      return await new Promise(resolve => {
+      return new Promise(resolve => {
         setTimeout(() => {
           resolve({
             fmp: window.fmp,

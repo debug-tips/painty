@@ -1,11 +1,12 @@
 {
   "extends": "airbnb-base",
   "parserOptions": {
-    "ecmaVersion": 3
+    "ecmaVersion": 2018
   },
   "env": {
     "browser": true,
-    "mocha": true
+    "mocha": true,
+    "es6": true
   },
   "rules": {
     "no-var": "off",
@@ -16,6 +17,8 @@
     "no-param-reassign": "warn",
     "prefer-destructuring": "off",
     "no-restricted-properties": "warn",
-    "object-shorthand": "off"
+    "object-shorthand": "off",
+    "no-use-before-define": "off",
+    "arrow-parens": "off"
   }
 }
