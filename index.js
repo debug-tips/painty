@@ -12,7 +12,7 @@ var calculateFMP = require('./calculateFMP');
 var STACK_LIMIT = typeof __PAINTY_STACK_LIMIT__ === 'number' ? __PAINTY_STACK_LIMIT__ : 100;
 
 function now() {
-  return performance && performance.now ? performance.now() : Date.now();
+  return typeof performance === 'object' && typeof performance.now === 'function' ? performance.now() : Date.now();
 }
 
 module.exports = function painty(timeout, callback) {
@@ -67,6 +67,10 @@ module.exports = function painty(timeout, callback) {
   var stopLogging = logDOMChange();
   function done() {
     stopLogging();
+
+    if (typeof timing !== 'object' || typeof timing.getEntriesByType !== 'function') {
+      return;
+    }
 
     var navTimings = timing.getEntriesByType('navigation');
     if (!navTimings || !navTimings.length) {
