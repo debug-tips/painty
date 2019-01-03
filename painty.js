@@ -168,7 +168,7 @@
 	var STACK_LIMIT = typeof __PAINTY_STACK_LIMIT__ === 'number' ? __PAINTY_STACK_LIMIT__ : 100;
 
 	function now() {
-	  return performance && performance.now ? performance.now() : Date.now();
+	  return typeof performance === 'object' && typeof performance.now === 'function' ? performance.now() : Date.now();
 	}
 
 	var painty = function painty(timeout, callback) {
@@ -223,6 +223,10 @@
 	  var stopLogging = logDOMChange();
 	  function done() {
 	    stopLogging();
+
+	    if (typeof lib !== 'object' || typeof lib.getEntriesByType !== 'function') {
+	      return;
+	    }
 
 	    var navTimings = lib.getEntriesByType('navigation');
 	    if (!navTimings || !navTimings.length) {
